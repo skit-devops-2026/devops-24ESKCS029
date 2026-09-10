@@ -51,3 +51,4 @@ npm run build
 Pure logic lives in `src/lib/` and is unit-tested in `src/lib/__tests__/`. When you add a
 helper, add a test for the happy path and at least one edge case. Keep tests free of
 network and database access so they run identically in CI and Jenkins.
+All changes should be tested locally before creating a pull request.
