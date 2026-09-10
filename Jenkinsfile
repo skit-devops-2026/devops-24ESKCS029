@@ -23,25 +23,25 @@ pipeline {
 
         stage('Install') {
             steps {
-                sh 'npm install --legacy-peer-deps'
+                bat 'npm install --legacy-peer-deps'
             }
         }
 
         stage('Lint') {
             steps {
-                sh 'npm run lint'
+                bat 'npm run lint'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'npm run test:ci'
+                bat 'npm run test:ci'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                bat 'npm run build'
             }
         }
 
