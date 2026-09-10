@@ -145,3 +145,4 @@ before merging. See `CONTRIBUTING.md` for the full workflow and commit message c
 
 Released for academic coursework use.
 DevOps workflow is managed using GitHub Actions and Jenkins.
+The Jenkins pipeline automatically installs dependencies, runs the test suite, builds the application, and archives the generated outputs.
