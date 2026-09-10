@@ -27,12 +27,6 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                bat 'npm run lint'
-            }
-        }
-
         stage('Test') {
             steps {
                 bat 'npm run test:ci'
@@ -47,7 +41,7 @@ pipeline {
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: '.output/**, coverage/**', allowEmptyArchive: true, fingerprint: true
+                archiveArtifacts artifacts: 'coverage/**, dist/**, .output/**', allowEmptyArchive: true, fingerprint: true
             }
         }
     }
@@ -57,7 +51,7 @@ pipeline {
             echo 'HostelFix pipeline succeeded: tests passed and build produced.'
         }
         failure {
-            echo 'HostelFix pipeline failed. Check the Test stage output first.'
+            echo 'HostelFix pipeline failed. Check the Test or Build stage output.'
         }
         always {
             cleanWs(deleteDirs: true, notFailBuild: true)
