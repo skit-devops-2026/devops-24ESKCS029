@@ -142,3 +142,4 @@ before merging. See `CONTRIBUTING.md` for the full workflow and commit message c
 ## License
 
 Released for academic coursework use.
+DevOps workflow is managed using GitHub Actions and Jenkins.
