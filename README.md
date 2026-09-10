@@ -108,6 +108,8 @@ npm run test:ci     # run with coverage
 Unit tests cover the complaint filtering, statistics, category grouping, pagination and
 storage-path helpers in `src/lib/complaint-utils.ts`, plus the class-merging utility and the
 domain constants. Every test runs on each push and pull request through GitHub Actions.
+All automated tests are executed using Vitest with coverage reporting.
+
 
 ## Continuous integration
 
