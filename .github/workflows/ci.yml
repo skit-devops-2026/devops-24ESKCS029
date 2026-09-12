@@ -28,7 +28,7 @@ jobs:
       
 
       - name: Run test suite
-        run: npm  test -- --coverage
+        run: npm test -- --coverage
 
       - name: Build application
         run: npm run build
