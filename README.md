@@ -6,7 +6,16 @@ attach a photo of the problem, and follow the complaint until it is resolved. Wa
 admins triage every complaint from a single dashboard, assign maintenance staff, add
 remarks and track resolution performance through charts.
 
-Live preview: https://id-preview--977442ce-b91b-4acc-a56b-dae39855ff7f.lovable.app
+## Live Deployment
+
+- **Live URL:** https://hostelfix-24eskcs029.onrender.com
+- **Preview URL:** https://id-preview--977442ce-b91b-4acc-a56b-dae39855ff7f.lovable.app
+- **Container Registry:** `ghcr.io/skit-devops-2026/devops-24eskcs029:latest`
+
+## Milestones & Coursework Evidence
+
+- [MT1 — Modules 1–4 Evidence](docs/MILESTONE-MT1.md) (Repository setup, branching, CI, Jenkins)
+- [MT2 — Modules 5–7 Evidence](docs/MILESTONE-MT2.md) (Containerization, Monitoring, Kubernetes)
 
 ## Features
 
@@ -30,9 +39,10 @@ Live preview: https://id-preview--977442ce-b91b-4acc-a56b-dae39855ff7f.lovable.a
 | Styling | Tailwind CSS v4, shadcn-style UI kit, Framer Motion (`motion`) |
 | Data / charts | TanStack Query, Recharts |
 | Backend | Lovable Cloud — PostgreSQL, authentication, row-level security, object storage |
-| Validation | Zod + React Hook Form |
-| Tests | Vitest (+ v8 coverage) |
-| CI/CD | GitHub Actions (`.github/workflows/ci.yml`) and Jenkins (`Jenkinsfile`) |
+| Containerization | Docker (multi-stage Alpine), Docker Compose |
+| Monitoring | Prometheus metrics scraping, Grafana dashboards (`monitoring/`) |
+| Orchestration | Kubernetes (`k8s/` Deployment and Service manifests) |
+| CI/CD | GitHub Actions (`ci.yml`, `docker-publish.yml`) and Jenkins (`Jenkinsfile`) |
 
 ## Getting started
 
@@ -40,23 +50,21 @@ Requirements: Node.js 20 or newer and npm.
 
 ```sh
 # After cloning this repository from its GitHub page, enter the cloned folder.
-cd project
+cd devops-24ESKCS029
 npm install
 npm run dev
 ```
 
 Use the **Code** button on the GitHub repository page to copy its exact clone command.
 
-The app starts on http://localhost:8080.
+The app starts on http://localhost:8080 (or http://localhost:3000 in preview/production).
 
 ### Environment variables
 
 Create a `.env` file in the project root:
 
-```sh
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
-VITE_SUPABASE_PROJECT_ID=your-project-id
+```text
+Configure the Supabase environment variables using the values from your Supabase project. Do not commit .env or any secrets to GitHub.
 ```
 
 These are publishable client values, safe to expose in the browser. No private keys are
@@ -67,7 +75,8 @@ stored in this repository, and `.env` is listed in `.gitignore`.
 | Script | Purpose |
 | --- | --- |
 | `npm run dev` | Start the development server |
-| `npm run build` | Production build |
+| `npm run build` | Production build (compiles server and static assets) |
+| `npm run start` | Start the compiled production Node server |
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | ESLint over the whole project |
 | `npm run test` | Run the Vitest suite once |
@@ -75,28 +84,95 @@ stored in this repository, and `.env` is listed in `.gitignore`.
 | `npm run test:ci` | Run tests with a coverage report (used by CI) |
 | `npm run format` | Format the codebase with Prettier |
 
+## Containerization with Docker (Module 5)
+
+HostelFix is containerized using a multi-stage `Dockerfile` based on `node:20-alpine`.
+
+### Run with Docker Compose
+
+```sh
+# Build and run the app and Prometheus monitoring stack together
+docker compose up -d
+
+# Stop services
+docker compose down
+```
+
+Services exposed:
+- **HostelFix Web App:** `http://localhost:3000`
+- **Prometheus Metrics:** `http://localhost:9090`
+
+### Run with Docker directly
+
+```sh
+# Build container image
+docker build -t hostelfix:latest .
+
+# Run container
+docker run -d -p 3000:3000 --name hostelfix hostelfix:latest
+```
+
+### Container Registry
+
+Docker images are automatically built and published to GitHub Container Registry (GHCR) via GitHub Actions on every push to `main`:
+
+```sh
+docker pull ghcr.io/skit-devops-2026/devops-24eskcs029:latest
+```
+
+## Monitoring and Observability (Module 6)
+
+- **Prometheus Config:** Configured in `prometheus.yml` and `monitoring/prometheus.yml` to scrape application metrics at `/metrics` every 10s.
+- **Grafana Dashboard:** Complete pre-configured dashboard available in `monitoring/dashboard.json` tracking:
+  - Application Status & Process Uptime
+  - HTTP Request Rate & 2xx Success Rate
+  - Latency percentiles (p50, p95, p99)
+  - Process Memory (RSS & Heap) and CPU Utilization
+- **Deployment Evidence:** Deployed production environment screenshot committed under `docs/deployment.png`.
+
+## Kubernetes Orchestration (Module 7)
+
+Production manifests are provided under the `k8s/` directory:
+
+- `k8s/deployment.yaml`: Replicated deployment (2 replicas) with rolling updates, resource limits, liveness and readiness probes referencing `ghcr.io/skit-devops-2026/devops-24eskcs029:latest`.
+- `k8s/service.yaml`: NodePort service routing external port 80 to container port 3000 (`nodePort: 30080`).
+- `k8s/kustomization.yaml`: Kustomize orchestration manifest.
+
+### Deploying to a Kubernetes Cluster (kind / k3d / minikube)
+
+```sh
+# Apply all manifests
+kubectl apply -f k8s/
+
+# Verify pods and service
+kubectl get pods -l app=hostelfix -o wide
+kubectl get deployments
+kubectl get svc hostelfix-service
+
+# Port forward to test locally
+kubectl port-forward svc/hostelfix-service 8080:80
+```
+
+Pod verification screenshot is committed under `docs/kubectl-get-pods.png`.
+
 ## Project structure
 
 ```
-.github/workflows/ci.yml   GitHub Actions pipeline (lint, test, build)
-Jenkinsfile                Jenkins declarative pipeline
+.github/workflows/         GitHub Actions CI and GHCR container publishing pipelines
+k8s/                       Kubernetes Deployment and Service manifests
+monitoring/                Prometheus scrape configs and Grafana dashboard JSON
+docs/                      Milestone evidence documentation and deployment screenshots
 src/routes/                File-based routes (public pages + _authenticated area)
 src/components/            Layout and shared UI kit
 src/lib/                   Auth context, theme, domain constants, pure helpers
 src/lib/__tests__/         Vitest unit tests
 src/integrations/          Generated backend client and types
 supabase/migrations/       Database schema, policies and storage setup
+Dockerfile                 Multi-stage Docker container specification
+docker-compose.yml         Docker Compose service definition (app + prometheus)
+prometheus.yml             Prometheus metrics scraping configuration
 vitest.config.ts           Test runner configuration
 ```
-
-## Data model
-
-- **profiles** — one row per user: name, email, phone, hostel block, room number
-- **user_roles** — role per user (`admin` / `student`), stored separately to prevent privilege escalation
-- **complaints** — title, description, category, block, room, image path, status, assigned staff, remarks, timestamps
-
-Row-level security policies let a student read and write only their own rows, while admins
-have full access. A database trigger creates a profile automatically when a user signs up.
 
 ## Testing
 
@@ -110,16 +186,18 @@ storage-path helpers in `src/lib/complaint-utils.ts`, plus the class-merging uti
 domain constants. Every test runs on each push and pull request through GitHub Actions.
 All automated tests are executed using Vitest with coverage reporting.
 
-
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on every push, on pull requests targeting `main` and on
-manual dispatch. Stages: checkout → install → lint → test with coverage → production build →
+manual dispatch. Stages: checkout → install → test with coverage → production build →
 upload the coverage artifact. A red pipeline blocks the merge until it is fixed.
+
+`.github/workflows/docker-publish.yml` builds and pushes the container image to GitHub
+Container Registry (`ghcr.io`) upon changes to the application and Dockerfile.
 
 ## Jenkins pipeline
 
-`Jenkinsfile` defines a declarative pipeline with Checkout, Install, Lint, Test, Build and
+`Jenkinsfile` defines a declarative pipeline with Checkout, Install, Test, Build and
 Archive stages. It expects a Jenkins NodeJS tool installation named `node20`.
 
 To run it locally:
