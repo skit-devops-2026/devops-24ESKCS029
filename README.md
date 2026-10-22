@@ -6,7 +6,7 @@ attach a photo of the problem, and follow the complaint until it is resolved. Wa
 admins triage every complaint from a single dashboard, assign maintenance staff, add
 remarks and track resolution performance through charts.
 
-## Live Deployment
+## Live Url
 
 - **Live URL:** https://hostelfix-24eskcs029.onrender.com
 - **Preview URL:** https://id-preview--977442ce-b91b-4acc-a56b-dae39855ff7f.lovable.app
